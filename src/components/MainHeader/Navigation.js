@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import AuthContext from '../../store/AuthContext';
-
 import classes from './Navigation.module.css';
 
 const Navigation = () => {
