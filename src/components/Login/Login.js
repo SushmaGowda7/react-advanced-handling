@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useState, useRef } from 'react';
 import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
 import Button from '../UI/Button/Button';
 import AuthContext from '../../store/AuthContext';
-import Input from '../input/Input';
+import Input from '../UI/input/Input';
 
 const emailReducer = (state, action) => {
   if(action.type === 'USER_INPUT'){
@@ -25,7 +25,7 @@ const passwordReducer = (state, action) => {
   return {value: '', isValid: false}
 }
 
-const Login = () => {
+const Login = (props) => {
   
   const [formIsValid, setFormIsValid] = useState(false);
 
@@ -40,6 +40,8 @@ const Login = () => {
   });
 
 const authctx = useContext(AuthContext);
+const emailInputRef = useRef();
+const passwordInputRef = useRef();
 
   useEffect(() => {
     console.log('EFFECT RUNNING');
@@ -54,9 +56,7 @@ const authctx = useContext(AuthContext);
 
   useEffect(() => {
     const identifier = setTimeout(() => {
-      setFormIsValid(
-        emailIsValid && passwordIsValid
-        )
+      setFormIsValid(emailIsValid && passwordIsValid)
       },300);
 
         return () => {
@@ -82,13 +82,20 @@ const authctx = useContext(AuthContext);
   
   const submitHandler = (event) => {
     event.preventDefault();
-    authctx.onLogin(emailState.value, passwordState.value);
+    if(formIsValid){
+      authctx.onLogin(emailState.value, passwordState.value);
+    } else if(!emailIsValid){
+      emailInputRef.current.focus();
+    } else{
+      passwordInputRef.current.focus();
+    }
   };
 
   return (
     <Card className={classes.login}>
       <form onSubmit={submitHandler}>
         <Input
+          ref={emailInputRef}
           id='email'
           label='E-Mail'
           type='email'
@@ -98,6 +105,7 @@ const authctx = useContext(AuthContext);
           onBlur={validateEmailHandler}
         />
         <Input
+          ref={passwordInputRef}
           id='password'
           label='Password'
           type='password'
@@ -107,7 +115,7 @@ const authctx = useContext(AuthContext);
           onBlur={validatePasswordHandler}
         />
         <div className={classes.actions}>
-          <Button type="submit" className={classes.btn} disabled={!formIsValid}>
+          <Button type="submit" className={classes.btn} >
             Login
           </Button>
         </div>
